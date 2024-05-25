@@ -3,4 +3,4 @@ numpy==1.21.2
 flask
 werkzeug
 requests
-
+psycopg2-binary
