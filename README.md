@@ -11,16 +11,52 @@ This project demonstrates a real-time interactive dashboard for mimicking applic
 - **Modular Design**: The project is structured to be easily extensible for various use cases involving real-time data streams.
 - **Ease of Setup**: Can be launched with a simple Docker Compose command.
 
-## Architecture
 
-This project integrates several technologies into a cohesive pipeline:
+## Architecture Overview
 
-- **Apache Kafka**: Handles incoming data streams and acts as a buffer for log data.
-- **Apache Spark**: Processes the data in real-time, performing computations and aggregations.
-- **PostgreSQL**: Stores the processed data for persistence and visualization.
-- **Plotly Dash**: Provides a web-based dashboard for displaying interactive visualizations of the data metrics.
+**1. Sensor Logger App (Flask Server)**
+Purpose: Receives sensor data from various devices.
+Technology Stack: Python (Flask), PostgreSQL (for storing sensor data).
+Functionality: The core application that collects sensor readings and stores them in a database.
+**2. Data Processing Pipeline**
+Component 1: Kafka Producer
+Purpose: Publishes sensor data from the Sensor Logger App to Kafka topics.
+Technology Stack: Python (Kafka producer library).
+Component 2: Kafka Consumer
+Purpose: Consumes data from Kafka topics and processes it further.
+Technology Stack: Apache Spark Streaming (or Structured Streaming for newer versions).
+**3. Data Storage**
+PostgreSQL Database
+Purpose: Stores processed data for long-term storage and analysis.
+Technology Stack: PostgreSQL.
+**4. Data Visualization Dashboard**
+Dash Application
+Purpose: Provides interactive visualizations of stored data.
+Technology Stack: Python (Dash framework).
+**5. Data Analysis and Reporting**
+Spark SQL / DataFrame API
+Purpose: Performs complex data analysis and generates reports based on the stored data.
+Technology Stack: Apache Spark.
 
-## Getting Started
+## Workflow
+
+**Data Collection:** The Sensor Logger App collects sensor data and sends it to the Kafka Producer.
+
+**Data Processing:** The Kafka Consumer reads the incoming data and processes it using Spark Streaming or Structured Streaming.
+
+**Data Storage:** Processed data is stored in the PostgreSQL database for long-term retention.
+
+**Data Visualization:** The Dash application fetches data from the PostgreSQL database and displays it through interactive charts and graphs.
+Analysis and Reporting: Additional processing and reporting can be performed using Spark SQL or DataFrame API on the stored data.
+
+##Development Steps
+
+Set up the Sensor Logger App: Develop the Flask server to collect sensor data and store it in PostgreSQL.
+Implement Kafka Integration: Add Kafka producers and consumers to handle real-time data flow between the Sensor Logger App and the Spark processing engine.
+Configure Spark Streaming: Set up Spark Streaming or Structured Streaming to process the incoming data streams.
+Integrate PostgreSQL: Ensure the processed data is correctly stored in the PostgreSQL database.
+Develop the Dash Dashboard: Create a Dash application to visualize the stored data interactively.
+Add Analysis Capabilities: Utilize Spark SQL or DataFrame API for advanced data analysis and reporting.
 
 ### Prerequisites
 

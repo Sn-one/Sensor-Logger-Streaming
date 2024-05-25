@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.3"
 
 networks:
   bridge:
@@ -36,8 +36,6 @@ services:
 
   kafka-producer:
     build: ./kafka_producer
-    ports:
-      - "5000:5000"
     depends_on:
       - kafka
     environment:
@@ -47,22 +45,44 @@ services:
         aliases:
           - kafka-producer
 
-
-  kafka-consumer:
-    build: ./kafka_consumer
-    depends_on:
-      - kafka
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  spark-master:
+    image: apache/spark:python3
+    ports:
+      - "8080:8080"  
+      - "7077:7077"  
+    command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --ip spark-master --port 7077 --webui-port 8080 && tail -f /dev/null"
     networks:
       bridge:
         aliases:
-          - kafka-consumer
+          - spark-master
+
+  spark-worker:
+    image: apache/spark:python3
+    depends_on:
+      - spark-master
+    command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077 && tail -f /dev/null"
+    networks:
+      bridge:
+        aliases:
+          - spark-worker
+
+  spark_job:
+    build: ./spark_jobs
+    depends_on:
+      - kafka
+      - spark-master
+      - spark-worker
+      - kafka-producer
+      - postgres
+    networks:
+      - bridge
+    environment:
+      - SPARK_MASTER_URL=spark://spark-master:7077
 
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_DB: sensor_logs
+      POSTGRES_DB: logs
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     volumes:
@@ -73,16 +93,24 @@ services:
       bridge:
         aliases:
           - postgres
-  
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
+
+  dash_app:
+    build: ./dash_app
     ports:
-      - "8080:80"
+      - "8050:8050"
+    depends_on:
+      - kafka
+      - spark-master
+      - spark-worker
+      - kafka-producer
+      - postgres
+      - spark_job
     networks:
       bridge:
         aliases:
-          - pgadmin
+          - dash_app
+
+
+
+
 
