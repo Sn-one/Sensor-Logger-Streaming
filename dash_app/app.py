@@ -58,194 +58,225 @@ def update_metrics(n):
     # Create database connection
     engine = sqlalchemy.create_engine("postgresql://admin:admin@postgres:5432/logs")
 
-    # Using context managers for handling database connections
+    # Fetch data for each sensor type
     with engine.connect() as conn:
-        df = pd.read_sql(
-            "SELECT * FROM sensor_metrics ORDER BY enddate DESC LIMIT 10", conn
+        accelerometer_df = pd.read_sql(
+            "SELECT * FROM sensor_metrics WHERE sensor_name='accelerometer' ORDER BY enddate DESC LIMIT 10", conn
+        )
+        gyroscope_df = pd.read_sql(
+            "SELECT * FROM sensor_metrics WHERE sensor_name='gyroscope' ORDER BY enddate DESC LIMIT 10", conn
+        )
+        gravity_df = pd.read_sql(
+            "SELECT * FROM sensor_metrics WHERE sensor_name='gravity' ORDER BY enddate DESC LIMIT 10", conn
+        )
+        orientation_df = pd.read_sql(
+            "SELECT * FROM sensor_metrics WHERE sensor_name='orientation' ORDER BY enddate DESC LIMIT 10", conn
+        )
+        magnetometer_df = pd.read_sql(
+            "SELECT * FROM sensor_metrics WHERE sensor_name='magnetometer' ORDER BY enddate DESC LIMIT 10", conn
         )
 
     # Accelerometer Metrics Plot
     accelerometer_metrics = go.Figure()
-    accelerometer_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_accel_x"],
-            name="X"
+    if not accelerometer_df.empty:
+        accelerometer_metrics.add_trace(
+            go.Scatter(
+                x=accelerometer_df["startdate"],
+                y=accelerometer_df["avg_x_value"],
+                mode='lines',
+                name="X"
+            )
         )
-    )
-    accelerometer_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_accel_y"],
-            name="Y"
+        accelerometer_metrics.add_trace(
+            go.Scatter(
+                x=accelerometer_df["startdate"],
+                y=accelerometer_df["avg_y_value"],
+                mode='lines',
+                name="Y"
+            )
         )
-    )
-    accelerometer_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_accel_z"],
-            name="Z"
+        accelerometer_metrics.add_trace(
+            go.Scatter(
+                x=accelerometer_df["startdate"],
+                y=accelerometer_df["avg_z_value"],
+                mode='lines',
+                name="Z"
+            )
         )
-    )
-    accelerometer_metrics.update_layout(
-        barmode="group",
-        title="Average Accelerometer Metrics",
-        xaxis_title="Time",
-        yaxis_title="Average Value",
-        template="plotly_dark",
-    )
+        accelerometer_metrics.update_layout(
+            title="Average Accelerometer Metrics",
+            xaxis_title="Time",
+            yaxis_title="Average Value",
+            template="plotly_dark",
+        )
 
     # Gyroscope Metrics Plot
     gyroscope_metrics = go.Figure()
-    gyroscope_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_gyro_x"],
-            name="X"
+    if not gyroscope_df.empty:
+        gyroscope_metrics.add_trace(
+            go.Scatter(
+                x=gyroscope_df["startdate"],
+                y=gyroscope_df["avg_x_value"],
+                mode='lines',
+                name="X"
+            )
         )
-    )
-    gyroscope_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_gyro_y"],
-            name="Y"
+        gyroscope_metrics.add_trace(
+            go.Scatter(
+                x=gyroscope_df["startdate"],
+                y=gyroscope_df["avg_y_value"],
+                mode='lines',
+                name="Y"
+            )
         )
-    )
-    gyroscope_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_gyro_z"],
-            name="Z"
+        gyroscope_metrics.add_trace(
+            go.Scatter(
+                x=gyroscope_df["startdate"],
+                y=gyroscope_df["avg_z_value"],
+                mode='lines',
+                name="Z"
+            )
         )
-    )
-    gyroscope_metrics.update_layout(
-        barmode="group",
-        title="Average Gyroscope Metrics",
-        xaxis_title="Time",
-        yaxis_title="Average Value",
-        template="plotly_dark",
-    )
+        gyroscope_metrics.update_layout(
+            title="Average Gyroscope Metrics",
+            xaxis_title="Time",
+            yaxis_title="Average Value",
+            template="plotly_dark",
+        )
 
     # Gravity Metrics Plot
     gravity_metrics = go.Figure()
-    gravity_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_gravity_x"],
-            name="X"
+    if not gravity_df.empty:
+        gravity_metrics.add_trace(
+            go.Scatter(
+                x=gravity_df["startdate"],
+                y=gravity_df["avg_x_value"],
+                mode='lines',
+                name="X"
+            )
         )
-    )
-    gravity_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_gravity_y"],
-            name="Y"
+        gravity_metrics.add_trace(
+            go.Scatter(
+                x=gravity_df["startdate"],
+                y=gravity_df["avg_y_value"],
+                mode='lines',
+                name="Y"
+            )
         )
-    )
-    gravity_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_gravity_z"],
-            name="Z"
+        gravity_metrics.add_trace(
+            go.Scatter(
+                x=gravity_df["startdate"],
+                y=gravity_df["avg_z_value"],
+                mode='lines',
+                name="Z"
+            )
         )
-    )
-    gravity_metrics.update_layout(
-        barmode="group",
-        title="Average Gravity Metrics",
-        xaxis_title="Time",
-        yaxis_title="Average Value",
-        template="plotly_dark",
-    )
+        gravity_metrics.update_layout(
+            title="Average Gravity Metrics",
+            xaxis_title="Time",
+            yaxis_title="Average Value",
+            template="plotly_dark",
+        )
 
     # Orientation Metrics Plot
     orientation_metrics = go.Figure()
-    orientation_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_orientation_pitch"],
-            name="Pitch"
+    if not orientation_df.empty:
+        orientation_metrics.add_trace(
+            go.Scatter(
+                x=orientation_df["startdate"],
+                y=orientation_df["avg_yaw"],
+                mode='lines',
+                name="Yaw"
+            )
         )
-    )
-    orientation_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_orientation_roll"],
-            name="Roll"
+        orientation_metrics.add_trace(
+            go.Scatter(
+                x=orientation_df["startdate"],
+                y=orientation_df["avg_pitch"],
+                mode='lines',
+                name="Pitch"
+            )
         )
-    )
-    orientation_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_orientation_yaw"],
-            name="Yaw"
+        orientation_metrics.add_trace(
+            go.Scatter(
+                x=orientation_df["startdate"],
+                y=orientation_df["avg_roll"],
+                mode='lines',
+                name="Roll"
+            )
         )
-    )
-    orientation_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_orientation_qw"],
-            name="QW"
+        orientation_metrics.add_trace(
+            go.Scatter(
+                x=orientation_df["startdate"],
+                y=orientation_df["avg_qw"],
+                mode='lines',
+                name="QW"
+            )
         )
-    )
-    orientation_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_orientation_qx"],
-            name="QX"
+        orientation_metrics.add_trace(
+            go.Scatter(
+                x=orientation_df["startdate"],
+                y=orientation_df["avg_qx"],
+                mode='lines',
+                name="QX"
+            )
         )
-    )
-    orientation_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_orientation_qy"],
-            name="QY"
+        orientation_metrics.add_trace(
+            go.Scatter(
+                x=orientation_df["startdate"],
+                y=orientation_df["avg_qy"],
+                mode='lines',
+                name="QY"
+            )
         )
-    )
-    orientation_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_orientation_qz"],
-            name="QZ"
+        orientation_metrics.add_trace(
+            go.Scatter(
+                x=orientation_df["startdate"],
+                y=orientation_df["avg_qz"],
+                mode='lines',
+                name="QZ"
+            )
         )
-    )
-    orientation_metrics.update_layout(
-        barmode="group",
-        title="Average Orientation Metrics",
-        xaxis_title="Time",
-        yaxis_title="Average Value",
-        template="plotly_dark",
-    )
+        orientation_metrics.update_layout(
+            title="Average Orientation Metrics",
+            xaxis_title="Time",
+            yaxis_title="Average Value",
+            template="plotly_dark",
+        )
 
     # Magnetometer Metrics Plot
     magnetometer_metrics = go.Figure()
-    magnetometer_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_magnetometer_x"],
-            name="X"
+    if not magnetometer_df.empty:
+        magnetometer_metrics.add_trace(
+            go.Scatter(
+                x=magnetometer_df["startdate"],
+                y=magnetometer_df["avg_x_value"],
+                mode='lines',
+                name="X"
+            )
         )
-    )
-    magnetometer_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_magnetometer_y"],
-            name="Y"
+        magnetometer_metrics.add_trace(
+            go.Scatter(
+                x=magnetometer_df["startdate"],
+                y=magnetometer_df["avg_y_value"],
+                mode='lines',
+                name="Y"
+            )
         )
-    )
-    magnetometer_metrics.add_trace(
-        go.Bar(
-            x=df["startdate"],
-            y=df["avg_magnetometer_z"],
-            name="Z"
+        magnetometer_metrics.add_trace(
+            go.Scatter(
+                x=magnetometer_df["startdate"],
+                y=magnetometer_df["avg_z_value"],
+                mode='lines',
+                name="Z"
+            )
         )
-    )
-    magnetometer_metrics.update_layout(
-        barmode="group",
-        title="Average Magnetometer Metrics",
-        xaxis_title="Time",
-        yaxis_title="Average Value",
-        template="plotly_dark",
-    )
+        magnetometer_metrics.update_layout(
+            title="Average Magnetometer Metrics",
+            xaxis_title="Time",
+            yaxis_title="Average Value",
+            template="plotly_dark",
+        )
 
     return (
         accelerometer_metrics,
