@@ -15,7 +15,7 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 app.layout = html.Div(
     [
         dbc.NavbarSimple(
-            brand="Real-time Application Analysis",
+            brand="Real-time Sensor Data Analysis",
             brand_href="#",
             color="dark",
             dark=True,
@@ -24,19 +24,17 @@ app.layout = html.Div(
             [
                 dbc.Row(
                     [
-                        dbc.Col(dcc.Graph(id="app-1-gauge"), width=4),
-                        dbc.Col(dcc.Graph(id="app-2-gauge"), width=4),
-                        dbc.Col(dcc.Graph(id="app-3-gauge"), width=4),
-                    ],
-                    align="center",
-                ),
-                dbc.Row([dbc.Col(dcc.Graph(id="error-trends"), width=12)]),
-                dbc.Row(
-                    [
-                        dbc.Col(dcc.Graph(id="latency-metrics"), width=6),
-                        dbc.Col(dcc.Graph(id="request-distribution"), width=6),
+                        dbc.Col(dcc.Graph(id="accelerometer-metrics"), width=6),
+                        dbc.Col(dcc.Graph(id="gyroscope-metrics"), width=6),
                     ]
                 ),
+                dbc.Row(
+                    [
+                        dbc.Col(dcc.Graph(id="gravity-metrics"), width=6),
+                        dbc.Col(dcc.Graph(id="orientation-metrics"), width=6),
+                    ]
+                ),
+                dbc.Row([dbc.Col(dcc.Graph(id="magnetometer-metrics"), width=12)]),
                 dcc.Interval(
                     id="interval-component", interval=10 * 1000, n_intervals=0
                 ),
@@ -46,15 +44,13 @@ app.layout = html.Div(
     ]
 )
 
-
 @app.callback(
     [
-        Output("app-1-gauge", "figure"),
-        Output("app-2-gauge", "figure"),
-        Output("app-3-gauge", "figure"),
-        Output("error-trends", "figure"),
-        Output("latency-metrics", "figure"),
-        Output("request-distribution", "figure"),
+        Output("accelerometer-metrics", "figure"),
+        Output("gyroscope-metrics", "figure"),
+        Output("gravity-metrics", "figure"),
+        Output("orientation-metrics", "figure"),
+        Output("magnetometer-metrics", "figure"),
     ],
     Input("interval-component", "n_intervals"),
 )
@@ -65,94 +61,199 @@ def update_metrics(n):
     # Using context managers for handling database connections
     with engine.connect() as conn:
         df = pd.read_sql(
-            "SELECT * FROM application_metrics ORDER BY enddate DESC LIMIT 3", conn
+            "SELECT * FROM sensor_metrics ORDER BY enddate DESC LIMIT 10", conn
         )
 
-        error_data = pd.read_sql(
-            """
-            SELECT application_id, enddate, error_rate
-            FROM application_metrics
-            ORDER BY application_id, enddate
-            LIMIT 300;
-            """,
-            conn,
-        )
-
-    # Create gauges for the latest error rates as percentages
-    gauges = []
-    for i in range(1, 4):
-        app_data = df[df["application_id"] == f"app_{i}"]
-        error_rate = app_data["error_rate"].values[0] if not app_data.empty else 0
-        gauge = go.Figure(
-            go.Indicator(
-                mode="gauge+number",
-                value=error_rate,
-                domain={"x": [0, 1], "y": [0, 1]},
-                title={"text": f"App {i} Error Rate", "align": "center"},
-                gauge={"axis": {"range": [None, 100]}},
-            )
-        )
-        gauge.update_layout(template="plotly_dark")
-        gauges.append(gauge)
-
-    # Error Trends Plot
-    error_trends = go.Figure()
-    for app_id in error_data["application_id"].unique():
-        app_data = error_data[error_data["application_id"] == app_id]
-        error_trends.add_trace(
-            go.Scatter(
-                x=app_data["enddate"],
-                y=app_data["error_rate"],
-                mode="lines+markers",
-                name=f"App {app_id}",
-            )
-        )
-
-    error_trends.update_layout(
-        title="Error Rate Trends Over Time",
-        xaxis_title="Time",
-        yaxis_title="Error Rate (%)",
-        legend_title="Application ID",
-        template="plotly_dark",
-    )
-
-    # Latency Metrics Plot
-    latency_metrics = go.Figure(
+    # Accelerometer Metrics Plot
+    accelerometer_metrics = go.Figure()
+    accelerometer_metrics.add_trace(
         go.Bar(
-            x=df["application_id"],
-            y=df["average_latency"],
-            text=df["average_latency"],
-            textposition="auto",
+            x=df["startdate"],
+            y=df["avg_accel_x"],
+            name="X"
         )
     )
-    latency_metrics.update_layout(
-        title="Average Latency per Application",
-        xaxis_title="Application ID",
-        yaxis_title="Latency (ms)",
-        template="plotly_dark",
-    )
-
-    # Request Distribution Plot
-    request_distribution = go.Figure()
-    request_types = ["get_requests", "post_requests", "put_requests", "delete_requests"]
-    for request_type in request_types:
-        request_distribution.add_trace(
-            go.Bar(
-                x=df["application_id"],
-                y=df[request_type],
-                name=request_type.split("_")[0].upper(),
-            )
+    accelerometer_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_accel_y"],
+            name="Y"
         )
-
-    request_distribution.update_layout(
+    )
+    accelerometer_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_accel_z"],
+            name="Z"
+        )
+    )
+    accelerometer_metrics.update_layout(
         barmode="group",
-        title="Request Distribution per Application",
-        xaxis_title="Application ID",
-        yaxis_title="Number of Requests",
+        title="Average Accelerometer Metrics",
+        xaxis_title="Time",
+        yaxis_title="Average Value",
         template="plotly_dark",
     )
 
-    return gauges + [error_trends, latency_metrics, request_distribution]
+    # Gyroscope Metrics Plot
+    gyroscope_metrics = go.Figure()
+    gyroscope_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_gyro_x"],
+            name="X"
+        )
+    )
+    gyroscope_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_gyro_y"],
+            name="Y"
+        )
+    )
+    gyroscope_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_gyro_z"],
+            name="Z"
+        )
+    )
+    gyroscope_metrics.update_layout(
+        barmode="group",
+        title="Average Gyroscope Metrics",
+        xaxis_title="Time",
+        yaxis_title="Average Value",
+        template="plotly_dark",
+    )
+
+    # Gravity Metrics Plot
+    gravity_metrics = go.Figure()
+    gravity_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_gravity_x"],
+            name="X"
+        )
+    )
+    gravity_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_gravity_y"],
+            name="Y"
+        )
+    )
+    gravity_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_gravity_z"],
+            name="Z"
+        )
+    )
+    gravity_metrics.update_layout(
+        barmode="group",
+        title="Average Gravity Metrics",
+        xaxis_title="Time",
+        yaxis_title="Average Value",
+        template="plotly_dark",
+    )
+
+    # Orientation Metrics Plot
+    orientation_metrics = go.Figure()
+    orientation_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_orientation_pitch"],
+            name="Pitch"
+        )
+    )
+    orientation_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_orientation_roll"],
+            name="Roll"
+        )
+    )
+    orientation_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_orientation_yaw"],
+            name="Yaw"
+        )
+    )
+    orientation_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_orientation_qw"],
+            name="QW"
+        )
+    )
+    orientation_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_orientation_qx"],
+            name="QX"
+        )
+    )
+    orientation_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_orientation_qy"],
+            name="QY"
+        )
+    )
+    orientation_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_orientation_qz"],
+            name="QZ"
+        )
+    )
+    orientation_metrics.update_layout(
+        barmode="group",
+        title="Average Orientation Metrics",
+        xaxis_title="Time",
+        yaxis_title="Average Value",
+        template="plotly_dark",
+    )
+
+    # Magnetometer Metrics Plot
+    magnetometer_metrics = go.Figure()
+    magnetometer_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_magnetometer_x"],
+            name="X"
+        )
+    )
+    magnetometer_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_magnetometer_y"],
+            name="Y"
+        )
+    )
+    magnetometer_metrics.add_trace(
+        go.Bar(
+            x=df["startdate"],
+            y=df["avg_magnetometer_z"],
+            name="Z"
+        )
+    )
+    magnetometer_metrics.update_layout(
+        barmode="group",
+        title="Average Magnetometer Metrics",
+        xaxis_title="Time",
+        yaxis_title="Average Value",
+        template="plotly_dark",
+    )
+
+    return (
+        accelerometer_metrics,
+        gyroscope_metrics,
+        gravity_metrics,
+        orientation_metrics,
+        magnetometer_metrics,
+    )
 
 
 if __name__ == "__main__":
