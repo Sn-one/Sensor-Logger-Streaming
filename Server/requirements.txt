@@ -1,8 +1,6 @@
 confluent-kafka==2.3.0
 numpy==1.21.2
-
 flask
 werkzeug
 requests
-
 

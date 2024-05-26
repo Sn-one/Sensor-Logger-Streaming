@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.8"
 
 networks:
   bridge:
@@ -26,8 +26,10 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CREATE_TOPICS: sensor_logs:1:1 
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
+      - "9092:9092"
       - "29092:29092"
     networks:
       bridge:
@@ -36,10 +38,10 @@ services:
 
   kafka-producer:
     build: ./kafka_producer
-    depends_on:
-      - kafka
     ports:
       - "5000:5000"
+    depends_on:
+      - kafka
     environment:
       KAFKA_BROKER_URL: "kafka:9092"  #TODO Set environment variable
     networks:
@@ -47,44 +49,23 @@ services:
         aliases:
           - kafka-producer
 
-  spark-master:
-    image: apache/spark:python3
-    ports:
-      - "8080:8080"  
-      - "7077:7077"  
-    command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --ip spark-master --port 7077 --webui-port 8080 && tail -f /dev/null"
-    networks:
-      bridge:
-        aliases:
-          - spark-master
 
-  spark-worker:
-    image: apache/spark:python3
-    depends_on:
-      - spark-master
-    command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077 && tail -f /dev/null"
-    networks:
-      bridge:
-        aliases:
-          - spark-worker
-
-  spark_job:
-    build: ./spark_jobs
+  kafka-consumer:
+    build: ./kafka_consumer
     depends_on:
       - kafka
-      - spark-master
-      - spark-worker
       - kafka-producer
-      - postgres
-    networks:
-      - bridge
     environment:
-      - SPARK_MASTER_URL=spark://spark-master:7077
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      bridge:
+        aliases:
+          - kafka-consumer
 
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_DB: logs
+      POSTGRES_DB: sensor_logs
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     volumes:
@@ -95,24 +76,16 @@ services:
       bridge:
         aliases:
           - postgres
-
-  dash_app:
-    build: ./dash_app
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
     ports:
-      - "8050:8050"
-    depends_on:
-      - kafka
-      - spark-master
-      - spark-worker
-      - kafka-producer
-      - postgres
-      - spark_job
+      - "8080:80"
     networks:
       bridge:
         aliases:
-          - dash_app
-
-
-
-
+          - pgadmin
 
