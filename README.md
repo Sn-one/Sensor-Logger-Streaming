@@ -3,7 +3,7 @@
 ## Overview
 
 The Sensor-Logger-Streaming project is designed to process and visualize real-time sensor data using a combination of Kafka, Spark, PostgreSQL, and a Dash web application. The project includes multiple components, each serving a specific role in the data processing pipeline.
-![Architecture](http://lmsotfy.com/so.png)
+![Architecture](https://github.com/Sn-one/Sensor-Logger-Streaming/blob/sensor-app_connected/sensor-logger-streaming_architecture.png)
 ## Components
 
 ### 1. Server
