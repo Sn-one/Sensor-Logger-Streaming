@@ -46,7 +46,7 @@ The Sensor-Logger-Streaming project is designed to process and visualize real-ti
   - `apache/spark:python3`
   - `postgres`
   - Custom images for Spark jobs, and Dash app
-- **Modifications**: Ensure configurations are set correctly for communication between services.
+
 
 ### 7. Data Source
 
