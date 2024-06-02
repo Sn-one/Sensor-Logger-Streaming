@@ -2,29 +2,61 @@
 
 ## Overview
 
-The Sensor-Logger-Streaming project is designed to process and visualize real-time sensor data using a combination of Kafka, Spark, PostgreSQL, and a Dash web application. The project includes multiple components, each serving a specific role in the data processing pipeline.
+The Sensor-Logger-Streaming project is designed to process and visualize real-time sensor data using Kafka, Spark, PostgreSQL, and a Dash web application. This README answers key questions to ensure the system is reliable, scalable, maintainable, and secure.
+
+## Architecture Diagram
+
 ![Architecture](https://github.com/Sn-one/Sensor-Logger-Streaming/blob/sensor-app_connected/sensor-logger-streaming_architecture.png)
-## Components
 
-### 1. Server
+## Key Components
 
-The server component, implemented using Flask, receives sensor data from Kelvin Choi's Sensor Logger application. This data is then forwarded to a Kafka topic for further processing.
+### 1. Data Ingestion Microservices
 
-### 2. Spark Job
+- **Server**: Implemented using Flask, it receives sensor data from Kelvin Choi's Sensor Logger application and forwards it to Kafka.
 
-A Spark job processes the streaming data from Kafka, parsing JSON, applying schemas, and aggregating sensor metrics. The processed data is then written to a PostgreSQL database.
+### 2. Data Pre-processing and Aggregation Microservices
 
-### 3. PostgreSQL
+- **Spark Job**: Processes streaming data from Kafka, parsing JSON, applying schemas, and aggregating sensor metrics. The processed data is written to PostgreSQL.
 
-A PostgreSQL database is used to store the aggregated sensor metrics for later analysis and visualization.
+### 3. Data Delivery to Frontend
 
-### 4. Dash Application
+- **Dash Application**: Provides real-time visualization of sensor data, fetching data from PostgreSQL and updating plots for different sensor metrics.
 
-The Dash web application provides real-time visualization of sensor data. It includes multiple plots for different sensor metrics such as accelerometer, gyroscope, gravity, orientation, and magnetometer. Data is fetched from the PostgreSQL database and updated at regular intervals.
+### 4. Reliability, Scalability, and Maintainability
 
-### 5. Docker Compose
+- **Techniques**: 
+  - Use of Kafka for scalable data ingestion and buffering.
+  - Spark for scalable and fault-tolerant data processing.
+  - Docker Compose for container orchestration ensuring reproducibility and easy deployment.
+  - Version control with GitHub for code management.
+  - Infrastructure as Code (IaC) principles.
 
-The project is containerized using Docker Compose, which defines services for Zookeeper, Kafka, Kafka producer, Spark master, Spark worker, PostgreSQL, and Dash app, along with their configurations and dependencies.
+### 5. Data Security, Governance, and Protection
+
+- **Techniques**:
+  - Secure Kafka communication using PLAINTEXT protocol (consider upgrading to SSL for production).
+  - Secure PostgreSQL access with user authentication.
+  - Isolation of services using Docker networks.
+
+### 6. Docker Images
+
+- **Images Used**:
+  - `confluentinc/cp-zookeeper`
+  - `confluentinc/cp-kafka`
+  - `apache/spark:python3`
+  - `postgres`
+  - Custom images for Spark jobs, and Dash app
+- **Modifications**: Ensure configurations are set correctly for communication between services.
+
+### 7. Data Source
+
+- **Data Source**: Kelvin Choi's Sensor Logger application, simulating real-time sensor data.
+- **Real-time Features**: Kafka for data streaming, Spark for processing.
+
+### 8. Aggregation and Windowing Functions
+
+- **Functions Used**:
+  - Spark's `window` and `avg` functions to aggregate data over time windows for sensor metrics.
 
 ## Docker Compose Configuration
 
@@ -44,4 +76,3 @@ To run the project, use the following command:
 
 ```bash
 docker-compose up
-
