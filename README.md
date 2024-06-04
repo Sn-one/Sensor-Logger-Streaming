@@ -75,4 +75,4 @@ The `docker-compose.yml` file sets up the necessary services and their interdepe
 To run the project, use the following command:
 
 ```bash
-docker-compose up
+docker-compose --env-file .env_config up --build
