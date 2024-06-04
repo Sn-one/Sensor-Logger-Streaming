@@ -68,7 +68,7 @@ app.layout = html.Div(
 )
 def update_metrics(n):
     # Create database connection
-    engine = sqlalchemy.create_engine(f"postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:5432/{settings.database_name}")
+    engine = sqlalchemy.create_engine(f"postgresql://{settings.database_username}:{settings.database_password}@postgres:5432/{settings.database_name}")
 
     # Fetch data for each sensor type
     with engine.connect() as conn:

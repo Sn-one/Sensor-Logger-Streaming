@@ -99,6 +99,8 @@ services:
       - bridge
     environment:
       - SPARK_MASTER_URL=spark://spark-master:7077
+    env_file:
+      - .env_config
 
   postgres:
     image: postgres:16
@@ -126,6 +128,8 @@ services:
       - kafka-producer
       - postgres
       - spark_job
+    env_file:
+      - .env_config
     networks:
       bridge:
         aliases:
