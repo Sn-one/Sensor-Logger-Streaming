@@ -8,6 +8,18 @@ from pyspark.sql.functions import (
     explode
 )
 from pyspark.sql.types import StructType, StructField, StringType, FloatType, LongType, ArrayType, MapType
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    database_password: str
+    database_name: str
+    database_username: str
+
+    class Config:
+        env_file = ".env_config"
+
+settings = Settings()
+
 
 def write_to_postgres(df, epoch_id, table_name: str) -> None:
     """
@@ -21,10 +33,10 @@ def write_to_postgres(df, epoch_id, table_name: str) -> None:
     This function uses JDBC to append data to a PostgreSQL table, ensuring that
     data is persisted in a relational database for later analysis and reporting.
     """
-    jdbc_url = "jdbc:postgresql://postgres:5432/logs"
+    jdbc_url = f"jdbc:postgresql://postgres:5432/{settings.database_name}"
     properties = {
-        "user": "admin",
-        "password": "admin",
+        "user": settings.database_username,
+        "password": settings.database_password,
         "driver": "org.postgresql.Driver",
     }
     df.write.jdbc(url=jdbc_url, table=table_name, mode="append", properties=properties)

@@ -6,6 +6,18 @@ import plotly.graph_objs as go
 import pandas as pd
 import sqlalchemy
 from dash_bootstrap_templates import load_figure_template
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    database_hostname: str
+    database_password: str
+    database_name: str
+    database_username: str
+
+    class Config:
+        env_file = ".env_config"
+
+settings = Settings()
 
 # Load the dark theme for the entire app
 load_figure_template("DARKLY")
@@ -56,7 +68,7 @@ app.layout = html.Div(
 )
 def update_metrics(n):
     # Create database connection
-    engine = sqlalchemy.create_engine("postgresql://admin:admin@postgres:5432/logs")
+    engine = sqlalchemy.create_engine(f"postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:5432/{settings.database_name}")
 
     # Fetch data for each sensor type
     with engine.connect() as conn:
