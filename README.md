@@ -156,3 +156,35 @@ Network Considerations
 Ensure your host machine and phone running the Sensor Logger application are on the same local network for the connection to work.
 If your Docker container is using a custom network, ensure that the network configurations allow communication between the container and your host machine.
 By following these steps, you will be able to connect the Sensor Logger application to the server running in a Docker container and send data successfully.
+
+### How to Connect the Sensor Logger Application to the Server in Docker Using Gitpod
+
+#### Steps to Connect the Sensor Logger Application in Gitpod
+
+1. **Start the Server Container**:
+   - Ensure the server container is running. Verify it by using:
+     ```bash
+     docker ps
+     ```
+   - Confirm that the container is exposed on port 5000.
+
+2. **Expose the Port in Gitpod**:
+   - When running your server container in Gitpod, the port will be exposed to a public URL provided by Gitpod.
+   - Find the URL by looking for the exposed port in Gitpod. It will look something like `https://5000-<your-gitpod-id>.ws-eu.gitpod.io`.
+
+3. **Configure Sensor Logger Application**:
+   - Open the Sensor Logger application on your phone.
+   - Navigate to the settings or configuration section where you can specify the server endpoint.
+   - Set the endpoint URL to the exposed URL from Gitpod, followed by the endpoint path. For example: `https://5000-<your-gitpod-id>.ws-eu.gitpod.io/sensor_data`.
+
+4. **Send Data from Sensor Logger**:
+   - Start sending data from the Sensor Logger application. The data should be posted to the specified endpoint on your server.
+   - Verify that the server container is receiving the data by checking the server logs or database.
+
+### Example Configuration for Sensor Logger
+
+**Server URL**: `https://5000-<your-gitpod-id>.ws-eu.gitpod.io/sensor_data`  
+**HTTP Method**: `POST`  
+**Content-Type**: `application/json`
+
+
