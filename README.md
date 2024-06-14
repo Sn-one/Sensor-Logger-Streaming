@@ -236,4 +236,4 @@ After starting all containers using Docker Compose, follow these steps to access
   docker-compose logs
 
 ### Acknowledgments
-This project was inspire and adapted from the https://github.com/firefly-cmd/data-engineering-template by Firefly, https://github.com/tszheichoi/awesome-sensor-loggerby Kelvin Choi
+This project was inspired and adapted from the https://github.com/firefly-cmd/data-engineering-template by Firefly, https://github.com/tszheichoi/awesome-sensor-logger by Kelvin Choi
