@@ -117,6 +117,12 @@ docker-compose --env-file .env_config up --build
    - Navigate to the settings or configuration section where you can specify the server endpoint.
    - Set the endpoint URL to `http://<container_ip>:5000/sensor_data`.
      - Replace `<container_ip>` with the IP address found in the previous step, e.g., `172.17.0.2`.
+   - Select the sensors to log in the Sensor Logger application. Ensure you select the following sensors as they are used in the project:
+     - Accelerometer
+     - Gyroscope
+     - Gravity
+     - Orientation
+     - Magnetometer
 
 6. **Send Data from Sensor Logger**:
    - Start sending data from the Sensor Logger application. The data should be posted to the specified endpoint on your server.
@@ -187,4 +193,45 @@ By following these steps, you will be able to connect the Sensor Logger applicat
 **HTTP Method**: `POST`  
 **Content-Type**: `application/json`
 
+### Accessing the Dash Application in Docker or Gitpod
+
+After starting all containers using Docker Compose, follow these steps to access the Dash application for viewing real-time sensor data.
+
+#### Steps to Access the Dash Application
+
+1. **Start All Containers**:
+   - Run the following command to start all the containers as defined in your `docker-compose.yml` file:
+     ```bash
+     docker-compose up --build
+     ```
+
+2. **Check if the Containers are Running**:
+   - Verify that all necessary containers are running, including the server, Kafka, Spark, PostgreSQL, and the Dash application:
+     ```bash
+     docker ps
+     ```
+
+3. **Access the Dash Application in Docker**:
+   - If you are running Docker locally, the Dash application will be accessible at:
+     ```
+     http://localhost:8050
+     ```
+
+4. **Access the Dash Application in Gitpod**:
+   - If you are using Gitpod, the port for the Dash application will be exposed to a public URL provided by Gitpod.
+   - Find the URL by looking for the exposed port in Gitpod. It will look something like `https://8050-<your-gitpod-id>.ws-eu.gitpod.io`.
+
+### Example URL Configuration for Local Docker
+
+**Local Docker URL**: `http://localhost:8050`
+
+### Example URL Configuration for Gitpod
+
+**Gitpod URL**: `https://8050-<your-gitpod-id>.ws-eu.gitpod.io`
+
+### Troubleshooting
+
+- If you cannot access the application, ensure that the Docker containers are running without errors by checking the logs:
+  ```bash
+  docker-compose logs
 
