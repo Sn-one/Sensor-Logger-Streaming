@@ -76,3 +76,83 @@ To run the project, use the following command:
 
 ```bash
 docker-compose --env-file .env_config up --build
+```
+### How to Connect the Sensor Logger Application to the Server in Docker
+
+#### Steps to Connect the Sensor Logger Application
+
+1. **Start the Server Container**:
+   - Ensure the server container is running. Verify it by using:
+     ```bash
+     docker ps
+     ```
+   - Confirm that the container is exposed on port 5000.
+
+2. **Identify the Docker Network**:
+   - Find the network your server container is connected to, typically the default `bridge` network. List all Docker networks:
+     ```bash
+     docker network ls
+     ```
+
+3. **Inspect the Docker Network**:
+   - Inspect the specific network to find details about connected containers and their IP addresses:
+     ```bash
+     docker network inspect bridge
+     ```
+
+4. **Locate Your Container's IP Address**:
+   - In the network inspection output, locate your container by its name or ID. Find the `IPAddress` under the `Containers` section. For example:
+     ```json
+     "Containers": {
+         "container_id": {
+             "Name": "your_server_container",
+             "IPAddress": "172.17.0.2",
+             ...
+         }
+     }
+     ```
+
+5. **Configure Sensor Logger Application**:
+   - Open the Sensor Logger application on your phone.
+   - Navigate to the settings or configuration section where you can specify the server endpoint.
+   - Set the endpoint URL to `http://<container_ip>:5000/sensor_data`.
+     - Replace `<container_ip>` with the IP address found in the previous step, e.g., `172.17.0.2`.
+
+6. **Send Data from Sensor Logger**:
+   - Start sending data from the Sensor Logger application. The data should be posted to the specified endpoint on your server.
+   - Verify that the server container is receiving the data by checking the server logs or database.
+
+### Example Configuration for Sensor Logger
+
+**Server URL**: `http://172.17.0.2:5000/sensor_data`  
+**HTTP Method**: `POST`  
+**Content-Type**: `application/json`
+
+### Example cURL Command for Testing
+
+You can use the following cURL command to send a sample JSON payload to your server endpoint for testing:
+
+```bash
+curl -X POST http://172.17.0.2:5000/sensor_data -H "Content-Type: application/json" -d '{
+  "messageId": "msg123",
+  "sessionId": "session456",
+  "deviceId": "device789",
+  "timestamp": "2023-01-01T00:00:00Z",
+  "sensors": [
+    {
+      "name": "accelerometer",
+      "time": 123456789,
+      "values": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": -1.0
+      },
+      "accuracy": 0.98
+    }
+  ]
+}'
+```
+Network Considerations
+Ensure your host machine and phone running the Sensor Logger application are on the same local network for the connection to work.
+If your Docker container is using a custom network, ensure that the network configurations allow communication between the container and your host machine.
+By following these steps, you will be able to connect the Sensor Logger application to the server running in a Docker container and send data successfully.
